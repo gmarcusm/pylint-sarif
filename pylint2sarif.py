@@ -227,7 +227,7 @@ class Pylint2Sarif(object):
         rule_id = None
         rule_name = None
         message_string = None
-        full_description = None
+        full_description = ''
         rules = []
         try:
             log("invoking {}".format(cmdline))
@@ -238,13 +238,14 @@ class Pylint2Sarif(object):
         # The output from this command is stored in memory, but it should have no trouble
         # fitting. With defaults, it is only about 60kb.
         (out, err) = proc.communicate()
-        sys.stderr.write(err)
+        sys.stderr.write(err.decode('utf-8'))
         # Invoking pylint in this manner should yield exit code zero.
         if proc.returncode != 0:
             sys.stderr.write(PYLINT_ERRCODE.format(proc.returncode, cmdline))
             sys.exit(1)
-        for line in out.splitlines():
-            sline = line.decode('utf-8').rstrip()
+        str_out = out.decode('utf-8')
+        for line in str_out.splitlines():
+            sline = line.rstrip()
             m = MSGRE.match(sline)
             if m is None:
                 full_description += sline
